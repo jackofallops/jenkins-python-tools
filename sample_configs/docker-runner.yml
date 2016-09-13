@@ -1,0 +1,25 @@
+---
+npmtest:
+  order: 1
+  command: npm test
+  volume: /tmp
+  label: '2'
+  sudo: True
+  image: cds-risk-ui-build
+
+rmdist:
+  order: 2
+  command: rm -fr dist
+  volume: /tmp
+  label: '2'
+  sudo: True
+  image: cds-risk-ui-build
+
+ngbuild:
+  order: 3
+  command: ng build -prod
+  volume: /tmp
+  label: '2'
+  sudo: True
+  image: cds-risk-ui-build
+

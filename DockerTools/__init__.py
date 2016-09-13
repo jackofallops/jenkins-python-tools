@@ -22,7 +22,6 @@ log_level = logging.INFO
 
 sh = logging.StreamHandler()
 sh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
-# logging.basicConfig(level=log_level, stream=sh)
 logger = logging.getLogger('DockerTools')
 logger.addHandler(sh)
 logger.setLevel(log_level)
@@ -95,7 +94,7 @@ class BuildConf:
 
     def __init__(self, filename='docker-runner.yml'):
         logger.debug("Loading config file %s " % filename)
-        self.npm_build_conf = []
+        self.npm_build_conf = {}
         self.filename = filename
         self.read_config()
         self.command_list = []
