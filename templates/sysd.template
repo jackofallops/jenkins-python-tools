@@ -1,0 +1,13 @@
+# $servicename.service
+[Unit]
+Description=$service_description
+AssertPathExists=$app_path/$servicename
+
+[Service]
+Type=simple
+PIDFile=/var/run/$servicename/$servicename.pid
+ExecStart=$app_path/$servicename/bin/$servicename -Dconfig.file=$conf_path/$servicename/$servicename.conf -Dhttp.port=9005 -Dplay.evolutions.db.default.autoApply=true -Dplay.crypto.secret="JsPw8Ks^opsdOwMxOg:D1OakZU<b_YQlq[BB\`:351n@EQL3Vt9Otm<sRWHYVyiwq" -Dpidfile.path=/var/run/$servicename/$servicename.pid > /var/log/$servicename.log 2>&1
+ExecStop=kill `cat /var/run/$env/$servicename/$servicename.pid` && rm /var/run/$env/$servicename/$servicename.pid
+
+[Install]
+WantedBy=multi-user.target

@@ -3,9 +3,9 @@ import os
 import yaml
 import logging
 import paramiko
-import socket
+# import socket
 import traceback
-from paramiko.client import SSHClient
+# from paramiko.client import SSHClient
 
 # set logging level for the module
 log_level = logging.DEBUG
@@ -21,6 +21,11 @@ __all__ = ['ArtifactConfig', 'ArtifactDownloader', 'ArtifactUploader']
 
 
 class ArtifactConfig(object):
+    """
+    Loads a yaml file into a dictionary for the module to pull from
+    :param str filename: yml file to read config from - has default value.
+
+    """
 
     def __init__(self, config_file='artifact-deploy.yml'):
         """

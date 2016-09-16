@@ -1,0 +1,6 @@
+---
+service_name: cds-some-service
+system: sysv
+conf_path: /opt/conf
+app_path: /opt/apps
+environment: dev

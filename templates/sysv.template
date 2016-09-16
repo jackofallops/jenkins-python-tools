@@ -1,0 +1,23 @@
+#!/bin/bash
+# $service_description
+# chkconfig: - 99 10
+
+# Source function library.
+. /etc/init.d/functions
+
+case "$1" in
+       	start)
+       		echo -n "Starting $servicename service: "
+       		$app_path/$servicename/bin/$servicename -Dconfig.file=$conf_path/$servicename/$servicename.conf -Dhttp.port=9005 -Dplay.evolutions.db.default.autoApply=true -Dplay.crypto.secret="JsPw8Ks^opsdOwMxOg:D1OakZU<b_YQlq[BB\`:351n@EQL3Vt9Otm<sRWHYVyiwq" -Dpidfile.path=/var/run/$servicename/$servicename.pid > /var/log/$servicename.log 2>&1 &
+       		touch /var/lock/subsys/$servicename
+       	;;
+       	stop)
+       		echo -n "Shutting down $servicename services: "
+       		kill `cat /var/run/$servicename/$servicename.pid`
+       		rm -f /var/lock/subsys/$servicename
+       		rm -f /var/run/$servicename/$servicename.pid
+       	;;
+       	*)
+       		echo "Usage: $servicename {start|stop]"
+       		exit 1
+       	;;

@@ -91,6 +91,11 @@ class DockerBuilder:
 
 
 class BuildConf:
+    """
+    Loads a yaml file into a dictionary for the module to pull from
+    :param str filename: yml file to read config from - has default value.
+
+    """
 
     def __init__(self, filename='docker-runner.yml'):
         logger.debug("Loading config file %s " % filename)
