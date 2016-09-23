@@ -26,15 +26,6 @@ logger.setLevel(log_level)
 __all__ = ['ServiceConfig', 'BasicSysVTemplate', 'BasicSysDTemplate', 'control_service']
 
 
-# log_level = logging.INFO
-
-sh = logging.StreamHandler()
-sh.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
-logger = logging.getLogger('ServiceTools')
-logger.addHandler(sh)
-logger.setLevel(log_level)
-
-
 class ServiceConfig(object):
     """
     Loads a yaml file into a dictionary for the module to pull from
@@ -47,11 +38,12 @@ class ServiceConfig(object):
         self.conf_path = '/opt/conf'
         self.app_path = '/opt/apps'
         self.service_description = ''
-        self.target = None
+        self.host = None
         self.deploy_user = 'root'
         self.identity_file = '/Users/sjones/.ssh/jenkins_rsa'
-        self.target_port = 22
+        self.host_port = 22
         self.env = None
+        self.system = 'sysv'
         self.read_config()
 
     def read_config(self):
@@ -72,10 +64,12 @@ class ServiceConfig(object):
             if log_level == logging.DEBUG:
                 logger.debug('Config in use: %s\n' % str(self.conf))
             exit(2)
-        if 'target' in self.conf:
-            self.target = self.conf['target']
+        if 'host' in self.conf:
+            self.host = self.conf['host']
+        if 'system' in self.conf:
+            self.system = self.conf['system']
         else:
-            logger.fatal("target host not specified in config cannot continue")
+            logger.fatal("host not specified in config cannot continue")
             if log_level == logging.DEBUG:
                 logger.debug('Config in use: %s\n' % str(self.conf))
             exit(2)
@@ -124,14 +118,14 @@ class ServiceConfig(object):
                 print('*** Unable to open host keys file')
                 host_keys = {}
 
-            if self.target in host_keys:
-                hostkeytype = host_keys[self.target].keys()[0]
-                hostkey = host_keys[self.target][hostkeytype]
+            if self.host in host_keys:
+                hostkeytype = host_keys[self.host].keys()[0]
+                hostkey = host_keys[self.host][hostkeytype]
 
             try:
                 k = paramiko.RSAKey.from_private_key_file(self.identity_file)
-                t = paramiko.Transport((self.target, self.target_port))
-                t.connect(hostkey=hostkey, username=self.deploy_user, gss_host=self.target,
+                t = paramiko.Transport((self.host, self.host_port))
+                t.connect(hostkey=hostkey, username=self.deploy_user, gss_host=self.host,
                           gss_auth=use_gssapi, gss_kex=do_gssapi_key_exchange, pkey=k)
                 sftp = paramiko.SFTPClient.from_transport(t)
                 with sftp.open('/tmp/outfile.txt', 'w') as f:
@@ -199,7 +193,10 @@ def control_service(user='root', host='localhost', service=None, type='sysv', ac
         identity_file = os.path.expanduser('~/.ssh/id_rsa')
         logger.info("identity file is %s" % identity_file)
     try:
-        k = paramiko.RSAKey.from_private_key_file(identity_file)
+        if '~' in identity_file:
+            k = paramiko.RSAKey.from_private_key_file(os.path.expanduser(identity_file))
+        else:
+            k = paramiko.RSAKey.from_private_key_file(identity_file)
         ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

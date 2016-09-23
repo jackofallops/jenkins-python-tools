@@ -7,4 +7,4 @@ environment: dev
 target: 192.168.56.101
 deploy_user: jenkins
 env: dev
-identity_file: ~/.ssh/id_rsa
+identity_file: ~/.ssh/jenkins_rsa
