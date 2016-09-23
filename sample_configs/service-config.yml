@@ -4,3 +4,6 @@ system: sysv
 conf_path: /opt/conf
 app_path: /opt/apps
 environment: dev
+target: 192.168.56.101
+deploy_user: jenkins
+env: dev
