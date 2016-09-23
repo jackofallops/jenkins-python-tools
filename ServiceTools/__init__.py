@@ -87,6 +87,11 @@ class ServiceConfig(object):
             self.deploy_user = self.conf['deploy_user']
         if 'env' in self.conf:
             self.env = self.conf['env']
+        if 'identity_file' in self.conf:
+            if '~' in self.conf['identity_file']:
+                self.identity_file = os.path.expanduser(self.conf['identity_file'])
+            else:
+                self.identity_file = self.conf['identity_file']
         else:
             logger.fatal("env not specified in config cannot continue")
             if log_level == logging.DEBUG:
@@ -98,7 +103,7 @@ class ServiceConfig(object):
     def push_to_server(self, template=None):
         """
 
-        :param Template template:
+        :param BasicSysDTemplate / BasicSysVTemplate template:
         :return:
         """
         template = template
@@ -254,5 +259,5 @@ def test_service_control():
     control_service(user='jenkins', host='192.168.56.101', service='sshd', type='sysv', action='stop', identity_file='/Users/sjones/.ssh/jenkins_rsa')
 
 
-test_sysv_config()
-test_service_control()
+# test_sysv_config()
+# test_service_control()
