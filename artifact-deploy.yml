@@ -1,0 +1,25 @@
+---
+download:
+  artifact: test.tgz
+  url: http://localhost:55581/
+  username: test
+  password: test
+  apikey: 1234567890
+  checksum: True
+
+upload:
+  artifact: test.tgz
+  target_type: ssh
+  target_path: /tmp/
+  username: test
+  password: test
+  identity_file: ~/.ssh/id_rsa
+  target: localhost
+  target_port: 22
+
+#upload:
+#  artifact: test.tgz
+#  target_type: artifactory
+#  username: User
+#  apikey: 1234567890
+#  target: localhost:55582

@@ -23,7 +23,7 @@ __all__ = ['ArtifactConfig', 'ArtifactDownloader', 'ArtifactUploader']
 class ArtifactConfig(object):
     """
     Loads a yaml file into a dictionary for the module to pull from
-    :param str filename: yml file to read config from - has default value.
+    :param str config_file: yml file to read config from - has default value.
 
     """
 

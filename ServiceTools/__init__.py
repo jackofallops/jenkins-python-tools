@@ -4,7 +4,7 @@ from string import Template
 import paramiko
 import traceback
 import select
-import sys
+# import sys
 import os
 
 """
@@ -111,7 +111,7 @@ class ServiceConfig(object):
             do_gssapi_key_exchange = False
 
             hostkey = None
-            hostkeytype = None
+            # hostkeytype = None
             try:
                 host_keys = paramiko.util.load_host_keys(os.path.expanduser('~/.ssh/known_hosts'))
             except IOError:
@@ -147,8 +147,8 @@ class BasicSysVTemplate:
     Defines a basic string Template to run on a init.d system
     :param Template template: Specifies the file location to use for the template
     """
-    def __init__(self, template='templates/sysv.template'):
-        self.template = Template(open(template).read())
+    def __init__(self, src_template='templates/sysv.template'):
+        self.template = Template(open(src_template).read())
 
     def substitute(self, service_name=None, app_path=None, conf_path=None):
         t = self.template.safe_substitute(servicename=service_name, conf_path=conf_path, app_path=app_path)
@@ -160,15 +160,15 @@ class BasicSysDTemplate:
     Defines a basic string Template to run on a systemd system
     :param Template template: Specifies the file location to use for the template
     """
-    def __init__(self, template='templates/sysd.template'):
-        self.template = Template(open(template).read())
+    def __init__(self, src_template='templates/sysd.template'):
+        self.template = Template(open(src_template).read())
 
     def substitute(self, service_name=None, app_path=None, conf_path=None):
         t = self.template.safe_substitute(servicename=service_name, conf_path=conf_path, app_path=app_path)
         return t
 
 
-def control_service(user='root', host='localhost', service=None, type='sysv', action=None, identity_file=None):
+def control_service(user='root', host='localhost', service=None, service_type='sysv', action=None, identity_file=None):
     """
     Method for sending commands to services over SSH.
     Defaults to local host, but requires a service name and an action to perform on it
@@ -178,8 +178,9 @@ def control_service(user='root', host='localhost', service=None, type='sysv', ac
     :param identity_file:
     :param user: user to use to connect, defaults to root
     :param host: host on which to act
+    :param action: action to apply to the names service
     :param service: service on which to act
-    :param type: service type we're acting on sysv or systemd
+    :param service_type: service type we're acting on sysv or systemd
     :return status: simple bool indicating if we sent the command successfully, no guarantee the command was successful
     """
     status = False
@@ -206,10 +207,14 @@ def control_service(user='root', host='localhost', service=None, type='sysv', ac
         pass
     try:
         logger.info("trying to perform a %s on %s, running on %s" % (action, service, host))
-        if type == 'sysv':
-            stdin, stdout, stderr = ssh.exec_command("sudo /etc/init.d/%s %s" % (service, action), timeout=15, get_pty=True)
-        elif type == 'systemd':
-            stdin, stdout, stderr = ssh.exec_command("sudo service %s %s" % (service, action), timeout=15, get_pty=True)
+        if service_type == 'sysv':
+            stdin, stdout, stderr = ssh.exec_command("sudo /etc/init.d/%s %s" % (service, action),
+                                                     timeout=15,
+                                                     get_pty=True)
+        elif service_type == 'systemd':
+            stdin, stdout, stderr = ssh.exec_command("sudo service %s %s" % (service, action),
+                                                     timeout=15,
+                                                     get_pty=True)
         while not stdout.channel.exit_status_ready():
             if stdout.channel.recv_ready():
                 rl, wl, xl = select.select([stdout.channel], [], [], 0.0)
@@ -253,7 +258,12 @@ def test_sysv_config():
 
 
 def test_service_control():
-    control_service(user='jenkins', host='192.168.56.101', service='sshd', type='sysv', action='stop', identity_file='/Users/sjones/.ssh/jenkins_rsa')
+    control_service(user='jenkins',
+                    host='localhost',
+                    service='sshd',
+                    service_type='sysv',
+                    action='stop',
+                    identity_file='/Users/sjones/.ssh/jenkins_rsa')
 
 
 # test_sysv_config()
